@@ -1,4 +1,10 @@
-export default function Button({ buttonType, onClick, children }) {
+type ButtonProps = {
+  onClick?: () => Promise<void>;
+  buttonType?: "primary" | "secondary";
+  children: React.ReactNode;
+}
+
+export default function Button({ buttonType, onClick, children }: ButtonProps) {
   return (
     <button
       onClick={onClick}
