@@ -1,6 +1,11 @@
 import { useTodosContext } from "../lib/hooks";
 
-export default function DeleteButton({ id }) {
+interface DeleteButtonProps {
+  id: number;
+}
+
+
+export default function DeleteButton({ id }: DeleteButtonProps) {
   const { deleteTodo } = useTodosContext();
 
   return (

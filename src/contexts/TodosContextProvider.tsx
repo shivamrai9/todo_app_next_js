@@ -1,23 +1,34 @@
 import { createContext, useEffect, useState } from "react";
-import { Todo } from "../lib/types";
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 
-export const TodosContext = createContext(null);
+export type Todo = {
+  id: number;
+  text: string;
+  completed: boolean;
+};
 
-export default function TodosContextProvider({ children }) {
+export interface TodosContextType {
+  todos: Todo[];
+  isLoading: boolean;
+  totalCount: number;
+  completedCount: number;
+  addTodo: (content: string) => void;
+  toggleTodo: (id: number) => void;
+  deleteTodo: (id: number) => void;
+}
+
+export const TodosContext = createContext<TodosContextType | null>(null);
+
+export default function TodosContextProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useKindeAuth();
 
-  // state
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // derived state
   const totalCount = todos.length;
   const completedCount = todos.filter((todo) => todo.completed).length;
 
-  // actions / event handlers
-  const addTodo = (content) => {
-    // check if user is logged in
+  const addTodo = (content: string) => {
     if (todos.length >= 3 && !isAuthenticated) {
       alert("To add more todos, please log in.");
       return;
@@ -25,52 +36,33 @@ export default function TodosContextProvider({ children }) {
 
     setTodos([
       ...todos,
-      {
-        id: todos.length + 1,
-        content,
-        completed: false,
-      },
+      { id: todos.length + 1, text: content, completed: false },
     ]);
   };
-  const toggleTodo = (id) => {
+
+  const toggleTodo = (id: number) => {
     setTodos(
       todos.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
   };
-  const deleteTodo = (id) => {
+
+  const deleteTodo = (id: number) => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
-  // side effects
   useEffect(() => {
     const fetchTodos = async () => {
       setIsLoading(true);
 
-      // const response = await fetch(
-      //   ""
-      // );
-      // const todos = await response.json();
       const todos = [
-        {
-          "id": 1,
-          "text": "buy groceries",
-          "completed": false
-        },
-        {
-          "id": 2,
-          "text": "walk the dog",
-          "completed": false
-        },
-        {
-          "id": 3,
-          "text": "do laundry",
-          "completed": false
-        }
-      ]
-      setTodos(todos);
+        { id: 1, text: "buy groceries", completed: false },
+        { id: 2, text: "walk the dog", completed: false },
+        { id: 3, text: "do laundry", completed: false },
+      ];
 
+      setTodos(todos);
       setIsLoading(false);
     };
 
@@ -79,15 +71,7 @@ export default function TodosContextProvider({ children }) {
 
   return (
     <TodosContext.Provider
-      value={{
-        todos,
-        isLoading,
-        totalCount,
-        completedCount,
-        addTodo,
-        toggleTodo,
-        deleteTodo,
-      }}
+      value={{ todos, isLoading, totalCount, completedCount, addTodo, toggleTodo, deleteTodo }}
     >
       {children}
     </TodosContext.Provider>
